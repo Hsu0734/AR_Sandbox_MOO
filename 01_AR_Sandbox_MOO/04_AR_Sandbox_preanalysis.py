@@ -14,10 +14,10 @@ import numpy as np
 import pandas as pd
 import rasterio as rs
 from rasterio.plot import show
-import matplotlib as plt
+import matplotlib.pyplot as plt
 
 # Replace this with the path to your CSV file
-csv_file_path = r'D:\PhD career\05 SCI papers\05 Lundtoftegade AKB\Lundtoftegade_optimization\00_data_source\30x30.csv'
+csv_file_path = r'D:\PhD career\08 Conference and activity\07 DLA Conference\AR_Sandbox_MOO\00_data_source\50x50.csv'
 df = pd.read_csv(csv_file_path)
 
 # Convert the DataFrame to a list of lists (each row becomes a list)
@@ -28,8 +28,8 @@ print(data_list)
 # create DEM with elevation value of the list
 wbe = wbw.WbEnvironment()
 wbe.verbose = False
-wbe.working_directory = r'D:\PhD career\05 SCI papers\05 Lundtoftegade AKB\Lundtoftegade_optimization\00_data_source'
-dem = wbe.read_raster('Blank_DEM_clip30.tif')
+wbe.working_directory = r'D:\PhD career\08 Conference and activity\07 DLA Conference\AR_Sandbox_MOO\00_data_source'
+dem = wbe.read_raster('Blank_DEM_clip50.tif')
 
 i = 0
 for row in range(dem.configs.rows):
@@ -60,7 +60,7 @@ for row in range(flow_accum.configs.rows):
 print(max(Flow_accum_value))
 print(min(Flow_accum_value))
 
-V_threshold = max(Flow_accum_value) * 0.01
+V_threshold = max(Flow_accum_value) * 0.1
 
 path_length = wbe.new_raster(flow_accum.configs)
 
