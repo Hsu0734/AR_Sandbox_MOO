@@ -35,13 +35,18 @@ i = 0
 for row in range(dem.configs.rows):
     for col in range(dem.configs.columns):
         if i < len(data_list):
-            dem[row, col] = data_list[i]
+            dem[row, col] = data_list[i-1]
             i += 1
 
 wbe.write_raster(dem, file_name='Initialization.tif', compress=True)
 path_00 = '../00_data_source/Initialization.tif'
 image_00 = rs.open(path_00)
-print(show(image_00))
+fig, ax = plt.subplots(figsize=(16, 16))
+ax.tick_params(axis='both', which='major', labelsize=20)
+show(image_00, title='DEM', ax=ax)
+
+plt.ticklabel_format(style='plain')
+plt.show()
 
 
 
@@ -60,7 +65,7 @@ for row in range(flow_accum.configs.rows):
 print(max(Flow_accum_value))
 print(min(Flow_accum_value))
 
-V_threshold = max(Flow_accum_value) * 0.1
+V_threshold = max(Flow_accum_value) * 0.05
 
 path_length = wbe.new_raster(flow_accum.configs)
 
@@ -150,5 +155,3 @@ for row in range(velocity.configs.rows):
 print(max(Velocity_value))
 print(min(Velocity_value))
 print(np.median(Velocity_value))
-
-

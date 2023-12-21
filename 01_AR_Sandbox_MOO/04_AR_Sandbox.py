@@ -57,7 +57,7 @@ class MyProblem(ElementwiseProblem):
     def __init__(self, n_grid, **kwargs):
         super().__init__(n_var=int(n_grid),
                          n_obj=3,
-                         n_ieq_constr=2,
+                         n_ieq_constr=1,
                          xl=np.array([-2] * n_grid),
                          xu=np.array([2] * n_grid),
                          **kwargs)
@@ -70,16 +70,16 @@ class MyProblem(ElementwiseProblem):
             var_list.append(x[i])
 
         # notice your function should be Min function
-        earth_volume_function = sum(abs(i) for i in var_list) * 25  # 25 is the unit area of grid (m2)
+        earth_volume_function = sum(abs(i) for i in var_list)  # unit area of grid: input yours (m2)
         flow_length_function = - (path_sum_calculation(var_list))
         velocity_function = velocity_calculation(var_list)
 
         # notice your function should be <= 0
-        g1 = sum(abs(i) for i in var_list) - 500   # the limitation of total earthwork volume
-        g2 = - (path_sum_calculation(var_list)) + 510    # the original flow path lenth
+        g1 = sum(abs(i) for i in var_list) - 1800   # the limitation of total earthwork volume
+        # g2 = - (path_sum_calculation(var_list)) + 193    # the original flow path lenth
 
         out["F"] = [earth_volume_function, flow_length_function, velocity_function]
-        out["G"] = [g1, g2]
+        out["G"] = [g1]
 
 def path_sum_calculation(var_list):
     i = 0
@@ -101,9 +101,9 @@ def path_sum_calculation(var_list):
     for row in range(flow_accum.configs.rows):
         for col in range(flow_accum.configs.columns):
             elev = flow_accum[row, col]   # Read a cell value from a Raster
-            if elev >= 2.3 and elev != flow_accum.configs.nodata:
+            if elev >= 2.6 and elev != flow_accum.configs.nodata:
                 path_length[row, col] = 1.0
-            elif elev < 2.3 or elev == flow_accum.configs.nodata:
+            elif elev < 2.6 or elev == flow_accum.configs.nodata:
                 path_length[row, col] = 0.0
 
     path = []
@@ -163,8 +163,8 @@ from pymoo.operators.sampling.rnd import FloatRandomSampling
 from pymoo.termination import get_termination
 
 algorithm = NSGA2(
-    pop_size=200,
-    n_offsprings=100,
+    pop_size=20,
+    n_offsprings=10,
     sampling=FloatRandomSampling(),
     crossover=SBX(prob=0.9, eta=15),
     mutation=PM(eta=20),
@@ -184,3 +184,58 @@ res = minimize(problem,
 
 X = res.X
 F = res.F
+
+
+
+### ----------------------------------------------- ###
+from pymoo.visualization.scatter import Scatter
+import matplotlib.pyplot as plt
+
+# 3D Visualization
+plot = Scatter(tight_layout=True)
+plot.add(F, s=10)
+plot.show()
+
+# 2D Pairwise Scatter Plots
+plt.figure(figsize=(7, 5))
+plt.scatter(F[:, 0], F[:, 1], s=20, facecolors='none', edgecolors='blue')
+plt.title("Flow path length (y) and total cost (x)")
+plt.grid()
+plt.show()
+
+plt.scatter(F[:, 1], F[:, 2], s=20, facecolors='none', edgecolors='blue')
+plt.title("Max velocity (y) and flow path length (x)")
+plt.grid()
+plt.show()
+
+plt.scatter(F[:, 0], F[:, 2], s=20, facecolors='none', edgecolors='blue')
+plt.title("Max velocity (y) and total cost (x)")
+plt.grid()
+plt.show()
+
+
+# save the solution result
+result_df = pd.DataFrame(F)
+result_df.to_csv('solution_output.csv', index=False)
+
+# save the solution tif image
+for i in range(20):
+    solution = res.X[i]
+    solution_dem = wbe.new_raster(dem.configs)
+
+    p = 0
+    for row in range(dem.configs.rows):
+        for col in range(dem.configs.columns):
+            if dem[row, col] == dem.configs.nodata:
+                solution_dem[row, col] = dem.configs.nodata
+            elif dem[row, col] != dem.configs.nodata:
+                solution_dem[row, col] = solution[p]
+                p = p + 1
+
+    after_dem = dem - solution_dem
+    filename = f'DEM_after_{i + 1}.tif'    #地形改动之后的结果
+    wbe.write_raster(after_dem, file_name=filename, compress=True)
+
+    filename_X = f'DEM_solution_{i + 1}.tif'   #地形自身的改动量
+    wbe.write_raster(solution_dem, file_name=filename_X, compress=True)
+
