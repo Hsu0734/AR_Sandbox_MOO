@@ -22,7 +22,8 @@ for i, dem_file in enumerate(dem_files):
     for row in range(dem.configs.rows):
         for col in range(dem.configs.columns):
             elev = dem[row, col]
-            Elevation_point.append(elev)
+            elev_rounded = round(elev, 3)
+            Elevation_point.append(elev_rounded)
     Elevation_point.append(np.nan)
 
 result_df = pd.DataFrame(Elevation_point)

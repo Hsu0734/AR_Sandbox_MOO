@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 
 # Replace this with the path to your CSV file
 csv_file_path = r'D:\PhD career\08 Conference and activity\07 DLA Conference\AR_Sandbox_MOO\00_data_source\50x50.csv'
-df = pd.read_csv(csv_file_path)
+df = pd.read_csv(csv_file_path, header=None)
 
 # Convert the DataFrame to a list of lists (each row becomes a list)
 data_array = df.values
@@ -35,7 +35,7 @@ i = 0
 for row in range(dem.configs.rows):
     for col in range(dem.configs.columns):
         if i < len(data_list):
-            dem[row, col] = data_list[i-1]
+            dem[row, col] = data_list[i]
             i += 1
 
 wbe.write_raster(dem, file_name='Initialization.tif', compress=True)
