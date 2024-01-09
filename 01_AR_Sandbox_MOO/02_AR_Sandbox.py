@@ -18,7 +18,7 @@ import rasterio as rs
 from rasterio.plot import show
 
 # Replace this with the path to your CSV file
-csv_file_path = r'D:\PhD career\08 Conference and activity\07 DLA Conference\AR_Sandbox_MOO\00_data_source\50x50.csv'
+csv_file_path = r'D:\PhD career\08 Conference and activity\07 DLA Conference\AR_Sandbox_MOO\00_data_source\30x30.csv'
 df = pd.read_csv(csv_file_path, header=None)
 
 # Convert the DataFrame to a list of lists (each row becomes a list)
@@ -31,7 +31,7 @@ print(data_list)
 wbe = wbw.WbEnvironment()
 wbe.verbose = False
 wbe.working_directory = r'D:\PhD career\08 Conference and activity\07 DLA Conference\AR_Sandbox_MOO\00_data_source'
-dem = wbe.read_raster('Blank_DEM_clip50.tif')
+dem = wbe.read_raster('Blank_DEM_clip30.tif')
 
 i = 0
 for row in range(dem.configs.rows):
@@ -75,7 +75,7 @@ class MyProblem(ElementwiseProblem):
         velocity_function = velocity_calculation(var_list)
 
         # notice your function should be <= 0
-        g1 = sum(abs(i) for i in var_list) - 1250   # the limitation of total earthwork volume
+        g1 = sum(abs(i) for i in var_list) - 450   # the limitation of total earthwork volume
         # g2 = - (path_sum_calculation(var_list)) + 193    # the original flow path lenth
 
         out["F"] = [earth_volume_function, flow_length_function, velocity_function]
@@ -101,9 +101,9 @@ def path_sum_calculation(var_list):
     for row in range(flow_accum.configs.rows):
         for col in range(flow_accum.configs.columns):
             elev = flow_accum[row, col]   # Read a cell value from a Raster
-            if elev >= 33.7 and elev != flow_accum.configs.nodata:
+            if elev >= 5.5 and elev != flow_accum.configs.nodata:
                 path_length[row, col] = 1.0
-            elif elev < 33.7 or elev == flow_accum.configs.nodata:
+            elif elev < 5.5 or elev == flow_accum.configs.nodata:
                 path_length[row, col] = 0.0
 
     path = []

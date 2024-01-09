@@ -11,14 +11,14 @@ wbe.working_directory = r'D:\PhD career\08 Conference and activity\07 DLA Confer
 dem_files = []
 
 for i in range(20):
-    filename = f'DEM_solution_{i + 1}.tif'
+    filename = f'DEM_after_{i + 1}.tif'
     dem_files.append(filename)
 
 Elevation_point = []
 # 遍历DEM文件
 for i, dem_file in enumerate(dem_files):
     # 打开DEM文件
-    dem = wbe.read_raster(f'DEM_solution_{i + 1}.tif')
+    dem = wbe.read_raster(f'DEM_after_{i + 1}.tif')
     for row in range(dem.configs.rows):
         for col in range(dem.configs.columns):
             elev = dem[row, col]
